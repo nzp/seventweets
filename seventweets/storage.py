@@ -36,8 +36,19 @@ class Storage:
 
     @classmethod
     def get_tweet(cls, id):
-        return json.dumps(cls._tweets[id].__dict__)
+        try:
+            tweet = json.dumps(cls._tweets[id].__dict__)
+        except KeyError:
+            tweet = None
+
+        return tweet
 
     @classmethod
     def delete_tweet(cls, id):
-        del cls._tweets[id]
+        tweet_id = cls._tweets.pop(id, None)
+
+        if tweet_id or tweet_id == 0:
+            return True
+        else:
+            return False
+

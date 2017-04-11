@@ -1,7 +1,9 @@
+import json
+
 from flask import Flask
 from flask import request
 
-from storage import Storage
+from seventweets.storage import Storage
 
 
 HEADERS = {'Content-Type': 'application/json; charset=utf=8'}
@@ -14,15 +16,25 @@ def get_tweets():
 
 @app.route('/tweets/<int:id>')
 def get_tweet(id):
-    try:
-        return Storage.get_tweet(id), 200, HEADERS
-    except KeyError:
-        return '', 404
+    tweet = Storage.get_tweet(id)
+
+    if tweet:
+        return tweet, 200, HEADERS
+    else:
+        return '{}', 404, HEADERS
 
 @app.route('/tweets', methods=['POST'])
 def save_tweet():
-    Storage.save_tweet(str(request.data))
-    return 'OK'
+    tweet = json.loads(request.data)
+
+    return Storage.save_tweet(tweet['tweet']), 201, HEADERS
+
+@app.route('/tweets/<int:id>', methods=['DELETE'])
+def delete_tweet(id):
+    if Storage.delete_tweet(id):
+        return '{}', 204, HEADERS
+    else:
+        return '{}', 404, HEADERS
 
 
 if __name__ == '__main__':
