@@ -68,9 +68,11 @@ class TestStorage:
         json_tweet = s.Storage.save_tweet(tweet)
 
         try:
-            json.loads(json_tweet)
+            decoded_tweet = json.loads(json_tweet)
         except JSONDecodeError:
             assert False
+
+        assert type(decoded_tweet) == dict
 
         assert type(s.Storage._tweets[0]) == s.Tweet
         assert len(s.Storage._tweets) == 1
