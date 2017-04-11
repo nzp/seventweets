@@ -28,6 +28,8 @@ class Storage:
         t = Tweet(tweet)
         cls._tweets[t.id] = t
 
+        return json.dumps(t.__dict__)
+
     @classmethod
     def get_all(cls):
         return json.dumps([t.__dict__ for t in cls._tweets.values()])
@@ -35,3 +37,7 @@ class Storage:
     @classmethod
     def get_tweet(cls, id):
         return json.dumps(cls._tweets[id].__dict__)
+
+    @classmethod
+    def delete_tweet(cls, id):
+        del cls._tweets[id]
