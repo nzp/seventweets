@@ -115,6 +115,7 @@ class TestStorage:
 
         # JSON output is a single dictionary with 3 keys, not a list of
         # length 1.
+        assert type(decoded_tweet) == dict
         assert len(decoded_tweet) == 3
 
         assert decoded_tweet['id'] == 1
