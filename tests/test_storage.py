@@ -88,6 +88,7 @@ class TestStorage:
         except JSONDecodeError:
             assert False
 
+        assert type(decoded_tweets) == list
         assert len(decoded_tweets) == 2
 
         t1 = decoded_tweets[0]
