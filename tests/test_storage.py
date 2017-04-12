@@ -70,7 +70,7 @@ class TestStorage:
 
         try:
             decoded_tweet = json.loads(json_tweet)
-        except JSONDecodeError:
+        except json.JSONDecodeError:
             assert False
 
         assert type(decoded_tweet) == dict
@@ -88,7 +88,7 @@ class TestStorage:
 
         try:
             decoded_tweets = json.loads(tweets)
-        except JSONDecodeError:
+        except json.JSONDecodeError:
             assert False
 
         assert type(decoded_tweets) == list
@@ -113,7 +113,7 @@ class TestStorage:
 
         try:
             decoded_tweet = json.loads(tweet)
-        except JSONDecodeError:
+        except json.JSONDecodeError:
             assert False
 
         # JSON output is a single dictionary with 3 keys, not a list of

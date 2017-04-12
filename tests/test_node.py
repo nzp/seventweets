@@ -34,7 +34,7 @@ def test_get_tweets(populate_tweets):
 
     try:
         decoded_response = json.loads(response.data)
-    except JSONDecodeError:
+    except json.JSONDecodeError:
         assert False
 
     assert type(decoded_response) == list
@@ -52,7 +52,7 @@ def test_get_tweet(populate_tweets):
 
     try:
         decoded_response = json.loads(response.data)
-    except JSONDecodeError:
+    except json.JSONDecodeError:
         assert False
 
     assert type(decoded_response) == dict
@@ -66,7 +66,7 @@ def test_save_tweet(populate_tweets):
 
     try:
         decoded_response = json.loads(response.data)
-    except JSONDecodeError:
+    except json.JSONDecodeError:
         assert False
 
     assert type(decoded_response) == dict
