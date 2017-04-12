@@ -33,7 +33,7 @@ def test_get_tweets(populate_tweets):
     response = test_client.get('/tweets')
 
     try:
-        decoded_response = json.loads(response.data)
+        decoded_response = json.loads(response.get_data(as_text=True))
     except json.JSONDecodeError:
         assert False
 
@@ -51,7 +51,7 @@ def test_get_tweet(populate_tweets):
     response = test_client.get('/tweets/1')
 
     try:
-        decoded_response = json.loads(response.data)
+        decoded_response = json.loads(response.get_data(as_text=True))
     except json.JSONDecodeError:
         assert False
 
@@ -65,7 +65,7 @@ def test_save_tweet(populate_tweets):
     response = test_client.post('/tweets', data='{"tweet": "New tweet!"}')
 
     try:
-        decoded_response = json.loads(response.data)
+        decoded_response = json.loads(response.get_data(as_text=True))
     except json.JSONDecodeError:
         assert False
 

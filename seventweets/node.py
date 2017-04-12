@@ -28,7 +28,7 @@ def get_tweet(id):
 
 @app.route('/tweets', methods=['POST'])
 def save_tweet():
-    tweet = json.loads(request.data)
+    tweet = json.loads(request.get_data(as_text=True))
 
     return Storage.save_tweet(tweet['tweet']), 201, HEADERS
 
