@@ -9,6 +9,7 @@ from seventweets import storage as s
 MIME_TYPE = 'application/json'
 test_client = node.app.test_client()
 
+
 def check_keys(d):
     """Check if all tweet fields are present in tweet object."""
 
@@ -17,6 +18,7 @@ def check_keys(d):
     assert 'name' in keys
     assert 'tweet' in keys
 
+
 @pytest.fixture(scope='module')
 def populate_tweets():
     s.Storage.save_tweet('Hello, World!')
@@ -24,7 +26,7 @@ def populate_tweets():
 
     yield None
     s.Storage._tweets.clear()
-    s.Tweet._tw_id = 0
+    s.Tweet.reset_counter()
 
 
 def test_get_tweets(populate_tweets):
@@ -32,7 +34,7 @@ def test_get_tweets(populate_tweets):
 
     try:
         decoded_response = json.loads(response.data)
-    except JSONDecodeError:
+    except json.JSONDecodeError:
         assert False
 
     assert type(decoded_response) == list
@@ -44,12 +46,13 @@ def test_get_tweets(populate_tweets):
     assert response.status_code == 200
     assert response.mimetype == MIME_TYPE
 
+
 def test_get_tweet(populate_tweets):
     response = test_client.get('/tweets/1')
 
     try:
         decoded_response = json.loads(response.data)
-    except JSONDecodeError:
+    except json.JSONDecodeError:
         assert False
 
     assert type(decoded_response) == dict
@@ -57,18 +60,20 @@ def test_get_tweet(populate_tweets):
     assert response.status_code == 200
     assert response.mimetype == MIME_TYPE
 
+
 def test_save_tweet(populate_tweets):
     response = test_client.post('/tweets', data='{"tweet": "New tweet!"}')
 
     try:
         decoded_response = json.loads(response.data)
-    except JSONDecodeError:
+    except json.JSONDecodeError:
         assert False
 
     assert type(decoded_response) == dict
     check_keys(decoded_response)
     assert response.status_code == 201
     assert response.mimetype == MIME_TYPE
+
 
 def test_delete_tweet(populate_tweets):
     response = test_client.delete('/tweets/1')
