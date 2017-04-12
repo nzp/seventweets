@@ -25,6 +25,7 @@ def tweets():
     # It would persist for all tests in this module so we have to reset it.
     s.Tweet._tw_id = 0
 
+
 @pytest.fixture
 def populate_tweets():
     TWEET1 = 'Get ALL the tweets!'

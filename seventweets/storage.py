@@ -3,6 +3,7 @@ import json
 
 NODE_NAME = 'nzp'
 
+
 class Tweet:
     _tw_id = 0
 

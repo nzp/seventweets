@@ -9,6 +9,7 @@ from seventweets import storage as s
 MIME_TYPE = 'application/json'
 test_client = node.app.test_client()
 
+
 def check_keys(d):
     """Check if all tweet fields are present in tweet object."""
 
@@ -16,6 +17,7 @@ def check_keys(d):
     assert 'id' in keys
     assert 'name' in keys
     assert 'tweet' in keys
+
 
 @pytest.fixture(scope='module')
 def populate_tweets():
@@ -44,6 +46,7 @@ def test_get_tweets(populate_tweets):
     assert response.status_code == 200
     assert response.mimetype == MIME_TYPE
 
+
 def test_get_tweet(populate_tweets):
     response = test_client.get('/tweets/1')
 
@@ -57,6 +60,7 @@ def test_get_tweet(populate_tweets):
     assert response.status_code == 200
     assert response.mimetype == MIME_TYPE
 
+
 def test_save_tweet(populate_tweets):
     response = test_client.post('/tweets', data='{"tweet": "New tweet!"}')
 
@@ -69,6 +73,7 @@ def test_save_tweet(populate_tweets):
     check_keys(decoded_response)
     assert response.status_code == 201
     assert response.mimetype == MIME_TYPE
+
 
 def test_delete_tweet(populate_tweets):
     response = test_client.delete('/tweets/1')
