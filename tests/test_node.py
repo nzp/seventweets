@@ -26,7 +26,7 @@ def populate_tweets():
 
     yield None
     s.Storage._tweets.clear()
-    s.Tweet._tw_id = 0
+    s.Tweet.reset_counter()
 
 
 def test_get_tweets(populate_tweets):

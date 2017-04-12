@@ -9,7 +9,7 @@ def clear_globals():
     """Clear global tweets dictionary and id counter."""
 
     s.Storage._tweets.clear()
-    s.Tweet._tw_id = 0
+    s.Tweet.reset_counter()
 
 
 @pytest.fixture(scope='class')
@@ -23,7 +23,7 @@ def tweets():
            'SECOND_TWEET': SECOND_TWEET,}
 
     # It would persist for all tests in this module so we have to reset it.
-    s.Tweet._tw_id = 0
+    s.Tweet.reset_counter()
 
 
 @pytest.fixture

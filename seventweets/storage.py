@@ -1,21 +1,26 @@
 import json
-
+import itertools
 
 NODE_NAME = 'nzp'
 
 
 class Tweet:
-    _tw_id = 0
+    _id_counter = None
+
+    @classmethod
+    def reset_counter(cls):
+        cls._id_counter = itertools.count()
 
     def __init__(self, tweet):
-        self.id = self.__class__._tw_id
+        self.id = next(self._id_counter)
         self.name = NODE_NAME
         self.tweet = tweet
 
-        self.__class__._tw_id += 1
-
     def __str__(self):
         return self.tweet
+
+
+Tweet.reset_counter()
 
 
 class Storage:
