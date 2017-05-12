@@ -1,8 +1,4 @@
 import json
-import itertools
-import functools
-
-import pg8000
 
 
 NODE_NAME = 'nzp'
@@ -20,58 +16,44 @@ class Tweet:
     def __str__(self):
         return self.tweet
 
-    def jsoned(self):
-        return json.dumps({'id': self.id, 'name': self.name, 'tweet': self.tweet})
 
+class Storage:
 
-#def uses_db(f):
-#    @functools.wraps(f)
-#    def wrapper(cls, *args, **kwargs):
-#        cursor = cls._connection.cursor()
-#        res = f(cls, cursor, *args, **kwargs)
-#        cursor.close()
-#        cls._connection.commit()
-#
-#        return res
-#
-#    return wrapper
-#
-#
-#class Storage:
-#    _connection = pg8000.connect(user='radionica', password='P4ss')
-#
-#    @classmethod
-#    @uses_db
-#    def save_tweet(cls, tweet):
-#        t = Tweet(tweet)
-#        cls._tweets[t.id] = t
-#
-#        return json.dumps(t.__dict__)
-#
-#    @classmethod
-#    @uses_db
-#    def get_all(cls, cursor):
-#        cursor.execute('SELECT id, name, tweet FROM tweets')
-#
-#        return json.dumps([Tweet(*tweet).jsoned() for tweet in cursor.fetchall()])
-#
-#    @classmethod
-#    def get_tweet(cls, cursor, id):
-#        cursor.execute(
-#            'SELECT id, name, tweet FROM tweets WHERE id = {id}'.format(id))
-#
-#        res = cursor.fetchone()
-#        if res:
-#            return Tweet(*res).jsoned()
-#        else:
-#            return None
-#
-#    @classmethod
-#    def delete_tweet(cls, id):
-#        tweet_id = cls._tweets.pop(id, None)
-#
-#        if tweet_id or tweet_id == 0:
-#            return True
-#        else:
-#            return False
-#
+    @classmethod
+    def get_all_tweets(cls, cursor):
+        cursor.execute('SELECT id, name, tweet FROM tweets')
+
+        return json.dumps([Tweet(tweet).__dict__ for tweet in cursor.fetchall()])
+
+    @classmethod
+    def get_tweet(cls, cursor, id):
+        cursor.execute(
+            'SELECT id, name, tweet FROM tweets WHERE id = {}'.format(id))
+
+        res = cursor.fetchone()
+        if res:
+            return json.dumps(Tweet(res).__dict__)
+        else:
+            return json.dumps({})
+
+    @classmethod
+    def save_tweet(cls, cursor, tweet):
+        cursor.execute(
+            "INSERT INTO tweets (name, tweet) \
+            VALUES ('nzp', '{}') RETURNING id, name, tweet".format(tweet))
+
+        res = cursor.fetchone()
+
+        return json.dumps(Tweet(res).__dict__)
+
+    @classmethod
+    def delete_tweet(cls, cursor, id):
+        cursor.execute(
+            "DELETE FROM tweets WHERE id = {} RETURNING id".format(id))
+
+        result = cursor.fetchone()
+
+        if result:
+            return True
+        else:
+            return False
