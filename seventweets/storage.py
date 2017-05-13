@@ -1,7 +1,6 @@
 import json
 
-
-NODE_NAME = 'nzp'
+from seventweets.config import Config
 
 
 class Tweet:
@@ -34,13 +33,14 @@ class Storage:
         if res:
             return json.dumps(Tweet(res).__dict__)
         else:
-            return json.dumps({})
+            return False
 
     @classmethod
     def save_tweet(cls, cursor, tweet):
         cursor.execute(
             "INSERT INTO tweets (name, tweet) \
-            VALUES ('nzp', '{}') RETURNING id, name, tweet".format(tweet))
+            VALUES ('{name}', '{tweet}') RETURNING id, name, tweet".format(
+                **{'name': Config.NAME, 'tweet': tweet}))
 
         res = cursor.fetchone()
 

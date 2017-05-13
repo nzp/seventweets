@@ -1,13 +1,20 @@
 import json
+from unittest.mock import MagicMock
+from unittest.mock import patch
+import sys
 
 import pytest
+from pytest_mock import mocker
 
-from seventweets import node
-from seventweets import storage as s
+# On import of seventweets.node below, pg8000.connect gets executed, so we nuke
+# it completely because we don't want the database involved at all.
+sys.modules['pg8000'] = MagicMock()
+
+import seventweets.node
 
 
 MIME_TYPE = 'application/json'
-test_client = node.app.test_client()
+test_client = seventweets.node.app.test_client()
 
 
 def check_keys(d):
@@ -19,17 +26,16 @@ def check_keys(d):
     assert 'tweet' in keys
 
 
-@pytest.fixture(scope='module')
-def populate_tweets():
-    s.Storage.save_tweet('Hello, World!')
-    s.Storage.save_tweet('Hello, World, Again!')
-
-    yield None
-    s.Storage._tweets.clear()
-    s.Tweet.reset_counter()
+TWEETS = [
+    {'id': 1, 'name': 'nzp', 'tweet': 'Hello, World!'},
+    {'id': 2, 'name': 'nzp', 'tweet': 'Hello, Again!'}
+]
 
 
-def test_get_tweets(populate_tweets):
+def test_get_tweets(mocker):
+    mocker.patch.object(seventweets.node.Storage, 'get_all_tweets')
+    seventweets.node.Storage.get_all_tweets.return_value = json.dumps(TWEETS)
+
     response = test_client.get('/tweets')
 
     try:
@@ -47,8 +53,14 @@ def test_get_tweets(populate_tweets):
     assert response.mimetype == MIME_TYPE
 
 
-def test_get_tweet(populate_tweets):
+def test_get_tweet(mocker):
+    mocker.patch.object(seventweets.node.Storage, 'get_tweet')
+    seventweets.node.Storage.get_tweet.return_value = json.dumps(TWEETS[0])
+
     response = test_client.get('/tweets/1')
+
+    args, kwargs = seventweets.node.Storage.get_tweet.call_args
+    assert args[1] == 1
 
     try:
         decoded_response = json.loads(response.get_data(as_text=True))
@@ -61,8 +73,14 @@ def test_get_tweet(populate_tweets):
     assert response.mimetype == MIME_TYPE
 
 
-def test_save_tweet(populate_tweets):
+def test_save_tweet(mocker):
+    mocker.patch.object(seventweets.node.Storage, 'save_tweet')
+    seventweets.node.Storage.save_tweet.return_value = json.dumps(TWEETS[1])
+
     response = test_client.post('/tweets', data='{"tweet": "New tweet!"}')
+
+    args, kwargs = seventweets.node.Storage.save_tweet.call_args
+    assert args[1] == 'New tweet!'
 
     try:
         decoded_response = json.loads(response.get_data(as_text=True))
@@ -75,7 +93,18 @@ def test_save_tweet(populate_tweets):
     assert response.mimetype == MIME_TYPE
 
 
-def test_delete_tweet(populate_tweets):
+def test_delete_tweet(mocker):
+    mocker.patch.object(seventweets.node.Storage, 'delete_tweet')
+    seventweets.node.Storage.delete_tweet.return_value = True
+
     response = test_client.delete('/tweets/1')
 
+    args, kwargs = seventweets.node.Storage.delete_tweet.call_args
+    assert args[1] == 1
+
     assert response.status_code == 204
+    assert response.mimetype == MIME_TYPE
+
+    seventweets.node.Storage.delete_tweet.return_value = False
+    response = test_client.delete('/tweets/1')
+    assert response.status_code == 404
