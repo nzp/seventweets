@@ -1,5 +1,3 @@
-**WIP**
-
 # SevenTweets
 
 [![Build Status](https://travis-ci.org/nzp/seventweets.svg?branch=master)](https://travis-ci.org/nzp/seventweets)
