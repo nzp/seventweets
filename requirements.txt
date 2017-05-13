@@ -1,5 +1,6 @@
 Flask
 pytest
 pytest-mock
+pytest-cov
 gunicorn
 pg8000
