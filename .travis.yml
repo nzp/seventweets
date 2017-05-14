@@ -5,5 +5,5 @@ python:
 install:
     - pip install -r requirements.txt
     - pip install codecov
-script: PYTHONPATH=. pytest
+script: PYTHONPATH=. pytest --cov=seventweets
 after_success: codecov
