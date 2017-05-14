@@ -3,7 +3,7 @@ python:
     - "3.5"
     - "3.6"
 install:
-    - pip install -r requirements.txt
+    - pip install -r requirements-dev.txt
     - pip install codecov
 script: PYTHONPATH=. pytest --cov=seventweets
 after_success: codecov
