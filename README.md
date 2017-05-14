@@ -1,6 +1,7 @@
 # SevenTweets
 
 [![Build Status](https://travis-ci.org/nzp/seventweets.svg?branch=master)](https://travis-ci.org/nzp/seventweets)
+[![codecov](https://codecov.io/gh/nzp/seventweets/branch/master/graph/badge.svg)](https://codecov.io/gh/nzp/seventweets)
 
 SevenTweets is a network of mini services that should resemble twitter.  Each
 service that will be part of SevenTweets can have different implementation but
