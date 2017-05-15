@@ -5,3 +5,4 @@
 .idea
 .coverage
 coverage.xml
+local_fabric_settings.py
