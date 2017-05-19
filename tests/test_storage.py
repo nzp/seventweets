@@ -1,5 +1,6 @@
 import json
 from unittest.mock import MagicMock
+from unittest.mock import patch
 
 import pytest
 
@@ -91,7 +92,9 @@ class TestStorage:
 
         assert decoded_tweet == tweet_2
 
-    def test_save_tweet(self, db_cursor):
+    @patch('seventweets.storage.Config')
+    def test_save_tweet(self, mock_config, db_cursor):
+        mock_config.NAME = 'nzp'
         cursor = db_cursor['cursor']
         tweet = TWEET_2
         test_result = db_cursor['tweet_2']

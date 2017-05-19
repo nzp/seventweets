@@ -6,4 +6,4 @@ class Config:
                      password=os.environ.get('ST_PG_PASS'),
                      host=os.environ.get('ST_PG_HOST'))
 
-    NAME = 'nzp'
+    NAME = os.environ.get('ST_NODE_NAME')
