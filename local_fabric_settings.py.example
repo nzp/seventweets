@@ -1,0 +1,8 @@
+HOST = ''
+USER = ''
+PORT = ''
+DOCKER_REPO = ''
+PG_USER = ''
+PG_PASS = ''
+NODE_NAME = ''
+NGINX_CONF = ''
