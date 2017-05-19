@@ -21,6 +21,7 @@ pg_pass = fs.PG_PASS
 
 app_docker_name = 'seventweets-app'
 app_node_name = fs.NODE_NAME
+app_api_token = fs.API_TOKEN
 
 nginx_docker_name = 'seventweets-nginx'
 nginx_conf = fs.NGINX_CONF
@@ -85,6 +86,7 @@ def run_app():
        '-e ST_PG_PASS={} '.format(pg_pass) +
        '-e ST_PG_HOST={} '.format(pg_docker_name) +
        '-e ST_NODE_NAME={} '.format(app_node_name) +
+       '-e ST_API_TOKEN={} '.format(app_api_token) +
        '{}'.format(repo))
 
 

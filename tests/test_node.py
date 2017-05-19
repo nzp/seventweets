@@ -32,6 +32,18 @@ TWEETS = [
 ]
 
 
+def test_auth(mocker):
+    with seventweets.node.app.test_request_context('/tweets/1',
+                                                   method='DELETE',
+                                                   headers={'X-Api-Token': 'false-token'}):
+        mocker.patch.object(seventweets.config.Config, 'API_TOKEN')
+        seventweets.config.Config.API_TOKEN = 'test-token'
+
+        g = seventweets.node.auth(lambda: ('{}', 201))
+        result = g()
+        assert result[1] == 401
+
+
 def test_get_tweets(mocker):
     mocker.patch.object(seventweets.node.Storage, 'get_all_tweets')
     seventweets.node.Storage.get_all_tweets.return_value = json.dumps(TWEETS)
@@ -77,7 +89,12 @@ def test_save_tweet(mocker):
     mocker.patch.object(seventweets.node.Storage, 'save_tweet')
     seventweets.node.Storage.save_tweet.return_value = json.dumps(TWEETS[1])
 
-    response = test_client.post('/tweets', data='{"tweet": "New tweet!"}')
+    mocker.patch.object(seventweets.config.Config, 'API_TOKEN')
+    seventweets.config.Config.API_TOKEN = 'test-token'
+
+    response = test_client.post('/tweets',
+                                data='{"tweet": "New tweet!"}',
+                                headers={'X-Api-Token': 'test-token'})
 
     args, kwargs = seventweets.node.Storage.save_tweet.call_args
     assert args[1] == 'New tweet!'
@@ -97,7 +114,11 @@ def test_delete_tweet(mocker):
     mocker.patch.object(seventweets.node.Storage, 'delete_tweet')
     seventweets.node.Storage.delete_tweet.return_value = True
 
-    response = test_client.delete('/tweets/1')
+    mocker.patch.object(seventweets.config.Config, 'API_TOKEN')
+    seventweets.config.Config.API_TOKEN = 'test-token'
+
+    response = test_client.delete('/tweets/1',
+                                  headers={'X-Api-Token': 'test-token'})
 
     args, kwargs = seventweets.node.Storage.delete_tweet.call_args
     assert args[1] == 1
@@ -106,5 +127,6 @@ def test_delete_tweet(mocker):
     assert response.mimetype == MIME_TYPE
 
     seventweets.node.Storage.delete_tweet.return_value = False
-    response = test_client.delete('/tweets/1')
+    response = test_client.delete('/tweets/1',
+                                  headers={'X-Api-Token': 'test-token'})
     assert response.status_code == 404

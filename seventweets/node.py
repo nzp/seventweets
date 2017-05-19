@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+from functools import wraps
 import json
 
 from flask import Flask
@@ -10,6 +11,10 @@ from seventweets.config import Config
 
 
 HEADERS = {'Content-Type': 'application/json; charset=utf=8'}
+PROTECTED_ENDPOINTS = {'get_tweets': False,
+                       'get_tweet': False,
+                       'save_tweet': True,
+                       'delete_tweet': True,}
 
 app = Flask(__name__)
 
@@ -26,7 +31,28 @@ def get_db_cursor():
     _connection.close()
 
 
+def auth(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        protected = PROTECTED_ENDPOINTS
+
+        if protected[request.endpoint]:
+            # A feature, not a bug: we can disable authentication by
+            # initializing the application without a token configured and not
+            # sending any in the request.  In that case this is None == None.
+            # But maybe it would be better to not allow for this.
+            if request.headers.get('X-Api-Token') == Config.API_TOKEN:
+                return f(*args, **kwargs)
+            else:
+                return '{}', 401, HEADERS
+        else:
+            return f(*args, **kwargs)
+
+    return wrapper
+
+
 @app.route('/tweets')
+@auth
 def get_tweets():
 
     with get_db_cursor() as cursor:
@@ -36,6 +62,7 @@ def get_tweets():
 
 
 @app.route('/tweets/<int:id>')
+@auth
 def get_tweet(id):
 
     with get_db_cursor() as cursor:
@@ -48,6 +75,7 @@ def get_tweet(id):
 
 
 @app.route('/tweets', methods=['POST'])
+@auth
 def save_tweet():
     tweet = json.loads(request.get_data(as_text=True))
 
@@ -58,6 +86,7 @@ def save_tweet():
 
 
 @app.route('/tweets/<int:id>', methods=['DELETE'])
+@auth
 def delete_tweet(id):
 
     with get_db_cursor() as cursor:
