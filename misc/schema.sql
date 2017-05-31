@@ -1,9 +1,9 @@
-DROP TABLE IF EXISTS tweets CASCADE;
+DROP TABLE IF EXISTS tweet CASCADE;
 
-CREATE TABLE tweets (
+CREATE TABLE tweet (
 	id SERIAL PRIMARY KEY,
-	name VARCHAR(10) NOT NULL,
-	tweet VARCHAR(200),
+	node_name VARCHAR(10) NOT NULL,
+	content VARCHAR(200),
 	pub_datetime TIMESTAMP WITH TIME ZONE DEFAULT current_timestamp,
 	rt BOOLEAN DEFAULT FALSE,
 	rt_origin_name VARCHAR(100),
