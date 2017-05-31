@@ -3,5 +3,9 @@ DROP TABLE IF EXISTS tweets CASCADE;
 CREATE TABLE tweets (
 	id SERIAL PRIMARY KEY,
 	name VARCHAR(10) NOT NULL,
-	tweet VARCHAR(200)
+	tweet VARCHAR(200),
+	pub_datetime TIMESTAMP WITH TIME ZONE DEFAULT current_timestamp,
+	rt BOOLEAN DEFAULT FALSE,
+	rt_origin_name VARCHAR(100),
+	rt_origin_id INTEGER
 );
