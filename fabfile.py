@@ -109,7 +109,7 @@ def run_nginx():
        '--net {} '.format(net) +
        '--restart unless-stopped ' +
        '-v {}:/etc/nginx/conf.d/default.conf '.format(nginx_conf) +
-       '-p 9000:80 ' +
+       '-p 80:80 ' +
        'nginx')
 
 
