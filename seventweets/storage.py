@@ -20,14 +20,14 @@ class Storage:
 
     @classmethod
     def get_all_tweets(cls, cursor):
-        cursor.execute('SELECT id, name, tweet FROM tweets')
+        cursor.execute('SELECT id, name, tweet FROM tweet')
 
         return json.dumps([Tweet(tweet).__dict__ for tweet in cursor.fetchall()])
 
     @classmethod
     def get_tweet(cls, cursor, id):
         cursor.execute(
-            'SELECT id, name, tweet FROM tweets WHERE id = {}'.format(id))
+            'SELECT id, name, tweet FROM tweet WHERE id = {}'.format(id))
 
         res = cursor.fetchone()
         if res:
@@ -38,7 +38,7 @@ class Storage:
     @classmethod
     def save_tweet(cls, cursor, tweet):
         cursor.execute(
-            "INSERT INTO tweets (name, tweet) \
+            "INSERT INTO tweet (name, tweet) \
             VALUES ('{name}', '{tweet}') RETURNING id, name, tweet".format(
                 **{'name': Config.NAME, 'tweet': tweet}))
 
@@ -49,7 +49,7 @@ class Storage:
     @classmethod
     def delete_tweet(cls, cursor, id):
         cursor.execute(
-            "DELETE FROM tweets WHERE id = {} RETURNING id".format(id))
+            "DELETE FROM tweet WHERE id = {} RETURNING id".format(id))
 
         result = cursor.fetchone()
 

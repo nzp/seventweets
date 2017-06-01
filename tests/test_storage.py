@@ -66,7 +66,7 @@ class TestStorage:
 
         tweets = Storage.get_all_tweets(cursor)
 
-        cursor.execute.assert_called_with('SELECT id, name, tweet FROM tweets')
+        cursor.execute.assert_called_with('SELECT id, name, tweet FROM tweet')
 
         try:
             decoded_tweets = json.loads(tweets)
@@ -83,7 +83,7 @@ class TestStorage:
         tweet = Storage.get_tweet(cursor, id)
 
         cursor.execute.assert_called_with(
-            'SELECT id, name, tweet FROM tweets WHERE id = {}'.format(TWEET_2_ID))
+            'SELECT id, name, tweet FROM tweet WHERE id = {}'.format(TWEET_2_ID))
 
         try:
             decoded_tweet = json.loads(tweet)
@@ -102,7 +102,7 @@ class TestStorage:
         result = Storage.save_tweet(cursor, tweet)
 
         cursor.execute.assert_called_with(
-            "INSERT INTO tweets (name, tweet) \
+            "INSERT INTO tweet (name, tweet) \
             VALUES ('nzp', '{}') RETURNING id, name, tweet".format(tweet))
 
         try:
@@ -121,5 +121,5 @@ class TestStorage:
         result = Storage.delete_tweet(cursor, id)
 
         cursor.execute.assert_called_with(
-            "DELETE FROM tweets WHERE id = {} RETURNING id".format(id))
+            "DELETE FROM tweet WHERE id = {} RETURNING id".format(id))
 
