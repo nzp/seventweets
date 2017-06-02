@@ -45,4 +45,19 @@ class TestRegistry:
     def test_known_nodes(self, node_data):
         Registry._known_nodes = node_data['known_nodes']
 
-        assert Registry.known_nodes == node_data['known_nodes_json']
+        test_nodes = json.loads(node_data['known_nodes_json'])
+
+        try:
+            result_nodes = json.loads(Registry.known_nodes)
+        except json.JSONDecodeError:
+            assert False
+
+        # List comparisons consider order of elements.
+        try:
+            for elem in result_nodes:
+                test_nodes.remove(elem)
+        except ValueError:
+            assert False
+        else:
+            assert not test_nodes
+
