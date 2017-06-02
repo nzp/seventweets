@@ -162,3 +162,10 @@ def test_register_node(mocker):
     assert response.status_code == 200
     assert response.mimetype == MIME_TYPE
 
+
+def test_delete_node(mocker):
+    mocker.patch.object(seventweets.registry.Registry, 'delete_node')
+
+    test_client.delete('/registry/test-name')
+
+    seventweets.registry.Registry.delete_node.assert_called_with('test-name')

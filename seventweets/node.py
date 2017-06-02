@@ -17,6 +17,7 @@ PROTECTED_ENDPOINTS = {'get_tweets': False,
                        'save_tweet': True,
                        'delete_tweet': True,
                        'register_node': False,
+                       'delete_node': False,
                        }
 
 app = Flask(__name__)
@@ -109,6 +110,12 @@ def register_node():
     Registry.register(node)
 
     return Registry.known_nodes, 200, HEADERS
+
+
+@app.route('/registry/<string:name>', methods=['DELETE'])
+@auth
+def delete_node(name):
+    Registry.delete_node(name)
 
 
 if __name__ == '__main__':
