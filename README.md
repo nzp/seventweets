@@ -39,6 +39,6 @@ services can be possible.  Every node in SevenTweets would:
 
 *  `POST /registry` 
     
-    Request body: `{"name": "...", "address:": "..."}`
-    Returns: `[{"name": "...", "address:": "..."}, ...]`
+    Request body: `{"name": "...", "address:": "..."}`  
+    Returns: `[{"name": "...", "address:": "..."}, ...]`  
     Status code: 200
