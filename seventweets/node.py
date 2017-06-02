@@ -5,6 +5,7 @@ import json
 from flask import Flask
 from flask import request
 import pg8000
+import requests
 
 from seventweets.config import Config
 from seventweets.registry import Registry
@@ -18,8 +19,10 @@ PROTECTED_ENDPOINTS = {'get_tweets': False,
                        'delete_tweet': True,
                        'register_node': False,
                        'delete_node': False,
+                       'join_network': True,
                        'get_known_nodes': True,
                        }
+single_mode = True
 
 app = Flask(__name__)
 
@@ -119,6 +122,34 @@ def delete_node(name):
     Registry.delete_node(name)
 
     return '{}', 204, HEADERS
+
+
+@app.route('/join_network', methods=['POST'])
+@auth
+def join_network():
+    if single_mode:
+        init_node = json.loads(request.get_data(as_text=True))
+        body = json.dumps({'name': Config.NAME, 'address': Config.ADDRESS})
+
+        Register.register(init_node)  # Just in case self is not returned.
+
+        all_nodes_json = requests.post(
+            'http://{address}/registry'.format(address=init_node['address']),
+            data=body)
+
+        all_nodes = json.loads(all_nodes_json)
+
+        for node in all_nodes:
+            Registry.register(node)
+
+            r = request.post(
+                'http://{address}/registry'.format(address=node['address']),
+                data=body)
+
+        single_mode = False
+        return "Joined network", 200, HEADERS
+    else:
+        return "Already in network mode", 200, HEADERS
 
 
 @app.route('/private/nodes')

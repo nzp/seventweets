@@ -70,6 +70,18 @@ def delete_tweet():
         print('Something went wrong.')
 
 
+def join_network():
+    init_node_name = input('Initial host name: ')
+    init_node_address = input('Initial host address: ')
+
+    body = json.loads({'name': init_node_name, 'address': init_node_address})
+
+    r = request.post('http://{}/join_network'.format(ls.HOST),
+                     data=body,
+                     headers=headers)
+    print(r.text)
+
+
 def get_known_nodes():
     r = requests.get('http://{}/private/nodes'.format(ls.HOST), headers=headers)
 
@@ -87,6 +99,7 @@ ACTIONS = {
     '2': get_tweet,
     '3': post_tweet,
     '4': delete_tweet,
+    '80': join_network,
     '90': get_known_nodes,
     '100': sys.exit
 }
@@ -106,6 +119,7 @@ Menu:
 2 - Get a local tweet by id
 3 - Tweet!
 4 - Delete a tweet
+80 - Join network
 90 - List known nodes
 100 - Exit
 

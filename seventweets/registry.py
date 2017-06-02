@@ -19,7 +19,8 @@ class Registry:
 
     @classmethod
     def register(cls, node):
-        cls._known_nodes.add(cls._Node(**node))
+        if node != cls._self_node:
+            cls._known_nodes.add(cls._Node(**node))
 
     @classproperty
     def known_nodes(cls):
