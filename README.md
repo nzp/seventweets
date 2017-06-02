@@ -36,3 +36,9 @@ services can be possible.  Every node in SevenTweets would:
 
 *  `DELETE /tweets/<id>`  
     Status code 204
+
+*  `POST /registry` 
+    
+    Request body: `{"name": "...", "address:": "..."}`
+    Returns: `[{"name": "...", "address:": "..."}, ...]`
+    Status code: 200

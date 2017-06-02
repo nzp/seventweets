@@ -6,15 +6,18 @@ from flask import Flask
 from flask import request
 import pg8000
 
-from seventweets.storage import Storage
 from seventweets.config import Config
+from seventweets.registry import Registry
+from seventweets.storage import Storage
 
 
 HEADERS = {'Content-Type': 'application/json; charset=utf=8'}
 PROTECTED_ENDPOINTS = {'get_tweets': False,
                        'get_tweet': False,
                        'save_tweet': True,
-                       'delete_tweet': True,}
+                       'delete_tweet': True,
+                       'register_node': False,
+                       }
 
 app = Flask(__name__)
 
@@ -96,6 +99,16 @@ def delete_tweet(id):
         return '{}', 204, HEADERS
     else:
         return '{}', 404, HEADERS
+
+
+@app.route('/registry', methods=['POST'])
+@auth
+def register_node():
+    node = json.loads(request.get_data(as_text=True))
+
+    Registry.register(node)
+
+    return Registry.known_nodes, 200, HEADERS
 
 
 if __name__ == '__main__':

@@ -130,3 +130,35 @@ def test_delete_tweet(mocker):
     response = test_client.delete('/tweets/1',
                                   headers={'X-Api-Token': 'test-token'})
     assert response.status_code == 404
+
+
+def test_register_node(mocker):
+    mocker.patch.object(seventweets.registry.Registry, 'register')
+    mocker.patch.object(seventweets.registry.Registry, 'known_nodes')
+
+    node_list = [
+        {'name': 'node1', 'address': 'node1.example.com'},
+        {'name': 'node2', 'address': 'node2.example.com'},
+    ]
+    seventweets.registry.Registry.known_nodes = json.dumps(node_list)
+
+    mocker.patch.object(seventweets.config.Config, 'API_TOKEN')
+    seventweets.config.Config.API_TOKEN = 'test-token'
+
+    data = '{"name": "test-node", "address": "node.example.com"}'
+
+    response = test_client.post('/registry',
+                                data=data,
+                                headers={'X-Api-Token': 'test-token'})
+
+    seventweets.registry.Registry.register.assert_called_with(json.loads(data))
+
+    try:
+        decoded_response = json.loads(response.get_data(as_text=True))
+    except json.JSONDecodeError:
+        assert False
+
+    assert decoded_response == node_list
+    assert response.status_code == 200
+    assert response.mimetype == MIME_TYPE
+

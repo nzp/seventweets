@@ -7,4 +7,5 @@ class Config:
                      host=os.environ.get('ST_PG_HOST'))
 
     NAME = os.environ.get('ST_NODE_NAME')
+    ADDRESS = os.environ.get('ST_NODE_ADDRESS')
     API_TOKEN = os.environ.get('ST_API_TOKEN')
