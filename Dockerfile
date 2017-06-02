@@ -8,6 +8,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY seventweets /usr/src/app/seventweets/
 COPY gunicorn_config.py /usr/src/app/
 
-ENV GUNICORN_CMD_ARGS "-c /usr/src/app/gunicorn_config.py"
+ENV PYTHONPATH=.
 
-CMD ["gunicorn", "seventweets.node:app"]
+CMD ["gunicorn", "-c", "/usr/src/app/gunicorn_config.py", "seventweets.node:app"]
