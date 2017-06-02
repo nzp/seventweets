@@ -51,3 +51,8 @@ twitter (short messages, ability to “retweet” etc.).  Every SevenTweets node
     Request body: `{"name": "...", "address:": "..."}`  
     Returns: `[{"name": "...", "address:": "..."}, ...]`  
     Status code: 200
+
+*  `DELETE /registry/<name>`
+
+    Delete node with `<name>` from known nodes.  Used to announce own shutdown.  
+    Status code: 204
