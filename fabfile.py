@@ -105,6 +105,10 @@ def restart_app():
     start_app()
 
 
+def remove_app_container():
+    run('docker rm {}'.format(app_docker_name))
+
+
 def run_nginx():
     run('docker run -d ' +
        '--name {} '.format(nginx_docker_name) +
@@ -132,5 +136,6 @@ def deploy():
     build()
     push()
     pull()
-    restart_app()
-
+    stop_app()
+    remove_app_container()
+    run_app()
