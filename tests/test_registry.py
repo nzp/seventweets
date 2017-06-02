@@ -22,6 +22,7 @@ def node_data():
     known_nodes_json = json.dumps([node1._asdict(), node2._asdict(), self_node])
 
     return {'node': node3,
+            'node1': node1,
             'known_nodes': known_nodes,
             'known_nodes_json': known_nodes_json}
 
@@ -61,3 +62,10 @@ class TestRegistry:
         else:
             assert not test_nodes
 
+    def test_delete_node(self, node_data):
+        Registry._known_nodes = node_data['known_nodes']
+        node = node_data['node1']
+
+        assert node in Registry._known_nodes
+        Registry.delete_node('node1')
+        assert node not in Registry._known_nodes

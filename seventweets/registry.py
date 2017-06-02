@@ -21,10 +21,15 @@ class Registry:
     def register(cls, node):
         cls._known_nodes.add(cls._Node(**node))
 
-
     @classproperty
     def known_nodes(cls):
         node_list = [n._asdict() for n in cls._known_nodes]
         node_list.append(cls._self_node)
         return json.dumps(node_list)
 
+    @classmethod
+    def delete_node(cls, node):
+        for n in cls._known_nodes:
+            if n.name == node:
+                cls._known_nodes.remove(n)
+                break
