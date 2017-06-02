@@ -70,11 +70,24 @@ def delete_tweet():
         print('Something went wrong.')
 
 
+def get_known_nodes():
+    r = requests.get('http://{}/private/nodes'.format(ls.HOST), headers=headers)
+
+    nodes = json.loads(r.text)
+
+    print('KNOWN NODES')
+    print('============')
+    for node in nodes:
+        print('name: {name}\naddress: {address}'.format(**node))
+        print('------------------------------------')
+
+
 ACTIONS = {
     '1': get_tweets,
     '2': get_tweet,
     '3': post_tweet,
     '4': delete_tweet,
+    '90': get_known_nodes,
     '100': sys.exit
 }
 
@@ -93,6 +106,7 @@ Menu:
 2 - Get a local tweet by id
 3 - Tweet!
 4 - Delete a tweet
+90 - List known nodes
 100 - Exit
 
 '''.format(**node_info)

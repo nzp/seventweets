@@ -18,6 +18,7 @@ PROTECTED_ENDPOINTS = {'get_tweets': False,
                        'delete_tweet': True,
                        'register_node': False,
                        'delete_node': False,
+                       'get_known_nodes': True,
                        }
 
 app = Flask(__name__)
@@ -118,6 +119,12 @@ def delete_node(name):
     Registry.delete_node(name)
 
     return '{}', 204, HEADERS
+
+
+@app.route('/private/nodes')
+@auth
+def get_known_nodes():
+    return Registry.known_nodes, 200, HEADERS
 
 
 if __name__ == '__main__':
