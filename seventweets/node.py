@@ -117,6 +117,8 @@ def register_node():
 def delete_node(name):
     Registry.delete_node(name)
 
+    return '{}', 204, HEADERS
+
 
 if __name__ == '__main__':
     app.run()
