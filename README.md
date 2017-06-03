@@ -59,7 +59,14 @@ twitter (short messages, ability to “retweet” etc.).  Every SevenTweets node
 
 *  `GET /search`
 
-    Search locally or across the network depending on the `all` parameter.  
+    Search locally or across the network depending on the `all` parameter.
+
     Query string parameters: `content`, `created_from`, `created_to`, `all`  
     Returns: `[{"id": 1, "name": "zeljko", "tweet": "this is tweet"}, ...]`  
     Status code: 200
+
+*  `POST /join_network`
+
+    Initiate joining the network if not already in.
+
+    Request body: `{"name": "...", "address:": "..."}`  
