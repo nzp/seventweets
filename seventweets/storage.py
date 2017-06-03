@@ -57,3 +57,9 @@ class Storage:
             return True
         else:
             return False
+
+    @classmethod
+    def search(cls, cursor, query):
+        cursor.execute(query)
+
+        return [Tweet(tweet).__dict__ for tweet in cursor.fetchall()]

@@ -70,6 +70,36 @@ def delete_tweet():
         print('Something went wrong.')
 
 
+def search():
+    yn = input('Search across all network? (y/n): ')
+
+    if yn == 'y':
+        all_network = '1'
+    else:
+        all_network = '0'
+
+    content = input('String to search: ')
+    created_from = input('Earliest date published: ')
+    created_to = input('Latest date published: ')
+
+    url = ('http://{}/search?'.format(ls.HOST) +
+           'content={}'.format(content) +
+           '&created_from={}'.format(created_from) +
+           '&created_to={}'.format(created_to) +
+           '&all={}'.format(all_network))
+
+    r = requests.get(url)
+
+    tweets = json.loads(r.text)
+
+    print('\n\n')
+    print('SEARCH RESULTS:')
+    print('================\n')
+
+    for tweet in tweets:
+        print_tweet(tweet)
+
+
 def join_network():
     init_node_name = input('Initial host name: ')
     init_node_address = input('Initial host address: ')
@@ -99,6 +129,7 @@ ACTIONS = {
     '2': get_tweet,
     '3': post_tweet,
     '4': delete_tweet,
+    '5': search,
     '80': join_network,
     '90': get_known_nodes,
     '100': sys.exit
@@ -119,6 +150,7 @@ Menu:
 2 - Get a local tweet by id
 3 - Tweet!
 4 - Delete a tweet
+5 - Search
 80 - Join network
 90 - List known nodes
 100 - Exit

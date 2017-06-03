@@ -56,3 +56,10 @@ twitter (short messages, ability to “retweet” etc.).  Every SevenTweets node
 
     Delete node with `<name>` from known nodes.  Used to announce own shutdown.  
     Status code: 204
+
+*  `GET /search`
+
+    Search locally or across the network depending on the `all` parameter.  
+    Query string parameters: `content`, `created_from`, `created_to`, `all`  
+    Returns: `[{"id": 1, "name": "zeljko", "tweet": "this is tweet"}, ...]`  
+    Status code: 200

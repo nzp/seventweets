@@ -19,6 +19,7 @@ PROTECTED_ENDPOINTS = {'get_tweets': False,
                        'delete_tweet': True,
                        'register_node': False,
                        'delete_node': False,
+                       'search': False,
                        'join_network': True,
                        'get_known_nodes': True,
                        }
@@ -122,6 +123,49 @@ def delete_node(name):
     Registry.delete_node(name)
 
     return '{}', 204, HEADERS
+
+
+@app.route('/search')
+@auth
+def search():
+    # TODO: Some validation.  Or switch to having an ORM.
+
+    # pg8000 chokes on '%', one solution is escaping: '%%'.
+    if request.args.get('content'):
+        content = '%%' + request.args.get('content') + '%%'
+    else:
+        content = '%%'
+
+    if request.args.get('created_from'):
+        created_from = request.args.get('created_from')
+    else:
+        created_from = '-infinity'
+
+    if request.args.get('created_to'):
+        created_to = request.args.get('created_to')
+    else:
+        created_to = 'infinity'
+
+    query = """
+    SELECT id, node_name, content FROM tweet
+    WHERE content ILIKE '{content}' AND
+    (pub_datetime > '{frm}' AND pub_datetime < '{to}');
+    """.format(content=content, frm=created_from, to=created_to)
+
+    with get_db_cursor() as cursor:
+        result = Storage.search(cursor, query)
+
+    if request.args.get('all') in ['1', 'true', 'yes']:
+        for node in Registry._known_nodes:
+            url = ('http://{}/search?'.format(node.address) +
+                   'content={}'.format(request.args.get('content')) +
+                   '&created_from={}'.format(request.args.get('created_from')) +
+                   '&created_to={}'.format(request.args.get('created_to')))
+
+            r = request.get(url)
+            result.extend(json.loads(r))
+
+    return json.dumps(result), 200, HEADERS
 
 
 @app.route('/join_network', methods=['POST'])
