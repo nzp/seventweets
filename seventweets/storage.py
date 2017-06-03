@@ -59,6 +59,13 @@ class Storage:
             return False
 
     @classmethod
+    def save_retweet(cls, cursor, tweet):
+        cursor.execute(
+            "INSERT INTO tweet (node_name, rt, rt_origin_id) \
+            VALUES ('{node_name}', TRUE, {origin_id})".format(node_name=tweet['name'],
+                                                            origin_id=tweet['id']))
+
+    @classmethod
     def search(cls, cursor, query):
         cursor.execute(query)
 

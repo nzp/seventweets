@@ -44,6 +44,13 @@ twitter (short messages, ability to “retweet” etc.).  Every SevenTweets node
 
     Status code: 204
 
+*   `POST /tweets/retweet`
+
+    Retweet a tweet from a different node.
+
+    Request body: `{'name': '...', 'id': '...'}` (name of node, and id of tweet)  
+    Status code: 200
+
 *  `POST /registry` 
 
     Announce self to another node.  Receive list of all known nodes.

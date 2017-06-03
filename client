@@ -18,6 +18,11 @@ headers = {'X-Api-Token': ls.API_TOKEN}
 
 
 def print_tweet(tweet):
+    # Temporary handling of retweets.  Content is None, which textwrap can't
+    # handle.
+    if not tweet['tweet']:
+        tweet['tweet'] = ''
+
     print(textwrap.fill(tweet['tweet'], width=70))
     print('-')
     print('id: {}, node: {}'.format(tweet['id'], tweet['name']))
@@ -100,6 +105,22 @@ def search():
         print_tweet(tweet)
 
 
+def retweet():
+    foreign_name = input('Name of the other node: ')
+    foreign_id = input('ID of tweet on the other node: ')
+
+    body = json.dumps({'name': foreign_name, 'id': foreign_id})
+
+    r = requests.post('http://{}/tweets/retweet'.format(ls.HOST),
+                      data=body,
+                      headers=headers)
+
+    if r.status_code == 200:
+        print('OK, retweeted.')
+    else:
+        print('Ooops, something went wrong.')
+
+
 def join_network():
     init_node_name = input('Initial host name: ')
     init_node_address = input('Initial host address: ')
@@ -130,6 +151,7 @@ ACTIONS = {
     '3': post_tweet,
     '4': delete_tweet,
     '5': search,
+    '6': retweet,
     '80': join_network,
     '90': get_known_nodes,
     '100': sys.exit
@@ -151,6 +173,7 @@ Menu:
 3 - Tweet!
 4 - Delete a tweet
 5 - Search
+6 - Retweet
 80 - Join network
 90 - List known nodes
 100 - Exit

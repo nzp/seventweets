@@ -17,6 +17,7 @@ PROTECTED_ENDPOINTS = {'get_tweets': False,
                        'get_tweet': False,
                        'save_tweet': True,
                        'delete_tweet': True,
+                       'retweet': True,
                        'register_node': False,
                        'delete_node': False,
                        'search': False,
@@ -105,6 +106,17 @@ def delete_tweet(id):
         return '{}', 204, HEADERS
     else:
         return '{}', 404, HEADERS
+
+
+@app.route('/tweets/retweet', methods=['POST'])
+@auth
+def retweet():
+    tweet = json.loads(request.get_data(as_text=True))
+
+    with get_db_cursor() as cursor:
+        Storage.save_retweet(cursor, tweet)
+
+    return '', 200, HEADERS
 
 
 @app.route('/registry', methods=['POST'])
