@@ -1,3 +1,27 @@
+"""Implements a network node.
+
+A simple Flask app in which routes (API endpoint) act as thin wrappers for
+database access functions, etc.
+
+Global variables:
+
+* ``HEADERS`` — Common HTTP response headers;
+* ``PROTECTED_ENDPOINTS`` — A dictionary indicating which endpoints are auth protected;
+* ``single_mode`` — Boolean indicating if we are the only node.
+
+Functions:
+
+* ``delete_node`` — Endpoint for removing inactive nodes;
+* ``delete_tweet`` — Endpoint for deleting own tweets;
+* ``get_known_nodes`` — “Private” endpoint, returns nodes we are aware of;
+* ``get_tweet`` — Endpoint to get tweet by id;
+* ``get_tweets`` — Endpoint to get all own tweets;
+* ``join_network`` — Initiate network join;
+* ``register_node`` — Register the node in request;
+* ``save_tweet`` — Save the tweet in request;
+* ``search`` — Search local or all tweets.
+
+"""
 from contextlib import contextmanager
 from functools import wraps
 import json
@@ -23,13 +47,19 @@ PROTECTED_ENDPOINTS = {'get_tweets': False,
                        'join_network': True,
                        'get_known_nodes': True,
                        }
+
+#  TODO:  Remove this, it does nothing really.
 single_mode = True
 
 app = Flask(__name__)
 
 
+#  TODO:  Privatize the name.
 @contextmanager
 def get_db_cursor():
+    # Context manager which returns a database connection, and closes it
+    # after processing is done.
+
     _connection = pg8000.connect(**Config.DB_CONFIG)
     cursor = _connection.cursor()
 
@@ -41,6 +71,9 @@ def get_db_cursor():
 
 
 def auth(f):
+    # Authentication decorator for API endpoints.  Each endpoint is decorated
+    # regardless of actually needing authentication.
+
     @wraps(f)
     def wrapper(*args, **kwargs):
         protected = PROTECTED_ENDPOINTS
@@ -63,7 +96,17 @@ def auth(f):
 @app.route('/tweets')
 @auth
 def get_tweets():
+    """Return all tweets by this node.
 
+    Tweets are returned as JSON objects of format:
+    ``{"id": <int>, "name": <str>, "tweet": <str>}``.  On success returns HTTP
+    200.
+
+    This endpoint is not protected by authentication.
+    
+    :rtype: tuple -- JSON array of tweet objects, status code, headers.
+
+    """
     with get_db_cursor() as cursor:
         tweets = Storage.get_all_tweets(cursor)
 
@@ -73,7 +116,18 @@ def get_tweets():
 @app.route('/tweets/<int:id>')
 @auth
 def get_tweet(id):
+    """Return tweet by id.
 
+    Tweet is returned as a JSON object of format:
+    ``{"id": <int>, "name": <str>, "tweet": <str>}``.  On success returns HTTP
+    200.
+
+    This endpoint is not protected by authentication.
+    
+    :rtype: tuple -- JSON object of the tweet or empty object if none, status
+    code, headers.
+
+    """
     with get_db_cursor() as cursor:
         tweet = Storage.get_tweet(cursor, id)
 
@@ -86,6 +140,21 @@ def get_tweet(id):
 @app.route('/tweets', methods=['POST'])
 @auth
 def save_tweet():
+    """Save tweet in POST request body to this node.
+
+    Used by this node's frontend to post an original tweet to the service.
+    This endpoint is authenticated.
+
+    Request body format is a JSON object with the tweet as value of string
+    ``"tweet"``, e.g.: ``{"tweet": "Hot takes! Get your hot takes!"}``.
+    
+    Returned tweet is a JSON object of the posted tweet of format:
+    ``{"id": <int>, "name": <str>, "tweet": <str>}``.  On success, the HTTP
+    status returned is 201.
+
+    :rtype: tuple -- JSON object of the tweet, status, headers.
+    
+    """
     tweet = json.loads(request.get_data(as_text=True))
 
     with get_db_cursor() as cursor:
@@ -97,7 +166,14 @@ def save_tweet():
 @app.route('/tweets/<int:id>', methods=['DELETE'])
 @auth
 def delete_tweet(id):
+    """Delete own tweet or retweet by id.
 
+    Used by this node's frontend to delete own tweet or retweet.  This endpoint
+    is authenticated.  On success returns HTTP code 204.
+    
+    :rtype: tuple -- Empty JSON object, status code, headers.
+
+    """
     with get_db_cursor() as cursor:
         result = Storage.delete_tweet(cursor, id)
 
@@ -110,6 +186,19 @@ def delete_tweet(id):
 @app.route('/registry', methods=['POST'])
 @auth
 def register_node():
+    """Register node in POST request body as active.
+
+    This is where nodes announce themselves to others by sending their name and
+    address in request body.  This endpoint is, of course, not authenticated.
+
+    Request body is a JSON object with the name of node and its address:
+    ``{"name": <str>, "address": <str>}``.  A JSON array of all known nodes, in
+    the same format as in the POST request, is returned to registered node.  On
+    success, HTTP code 200 is returned.
+    
+    :rtype: tuple -- JSON array of known nodes, status code, headers.
+
+    """
     node = json.loads(request.get_data(as_text=True))
 
     Registry.register(node)
@@ -120,6 +209,15 @@ def register_node():
 @app.route('/registry/<string:name>', methods=['DELETE'])
 @auth
 def delete_node(name):
+    """Delete node ``name`` from the list of known nodes.
+
+    Nodes use this endpoint to announce their own shutdown.  It is not
+    authenticated (but should in future have some sort of validation of
+    ``name``).  Upon success returns HTTP code 204.
+
+    :rtype: tuple -- Empty JSON object, status code, headers.
+
+    """
     Registry.delete_node(name)
 
     return '{}', 204, HEADERS
@@ -128,6 +226,24 @@ def delete_node(name):
 @app.route('/search')
 @auth
 def search():
+    """Search for, and return tweets satisfying query string parameters.
+
+    This endpoint is used to initiate a search of node's local tweets, or
+    a global search of the whole network.  It is not authenticated.  The
+    accepted query string parameters are:
+
+    *  ``content`` -- String to search for;
+    *  ``created_from`` -- Earliest date of tweet;
+    *  ``created_to`` -- Last date of tweet;
+    *  ``all`` -- If set, do a global search.
+
+    Returns a JSON array of tweet objects, of format
+    ``{"id": <int>, "name": <str>, "tweet": <str>}``, that satisfy search
+    parameters.  On success returns HTTP code 200.
+
+    :rtype: tuple -- JSON array of tweet objects, status code, headers.
+    
+    """
     # TODO: Some validation.  Or switch to having an ORM.
 
     # pg8000 chokes on '%', one solution is escaping: '%%'.
@@ -171,6 +287,19 @@ def search():
 @app.route('/join_network', methods=['POST'])
 @auth
 def join_network():
+    """Initiate joining the network if not already in.
+
+    This endpoint is used by node's frontend to make it join the network.  It
+    is authenticated.  The request body contains the name and address of the
+    initial node we should register to, as a JSON object of format:
+    ``{"name": <str>, "address": <str>}``.  After the initial node returns its
+    list of known nodes, we register to each of those.  Returns HTTP 200 on
+    successful join.
+
+    :rtype: tuple -- str, status code, headers.
+
+    """
+    # TODO: This check is mostly useless for now and should be removed.
     if single_mode:
         init_node = json.loads(request.get_data(as_text=True))
         body = json.dumps({'name': Config.NAME, 'address': Config.ADDRESS})
@@ -199,6 +328,9 @@ def join_network():
 @app.route('/private/nodes')
 @auth
 def get_known_nodes():
+    # Not part of API specification, used only by the frontend to get a list
+    # of known nodes for diagnostic purposes.
+
     return Registry.known_nodes, 200, HEADERS
 
 
