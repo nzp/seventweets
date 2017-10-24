@@ -4,5 +4,7 @@
 .cache
 .idea
 .coverage
+tags
+Session.vim
 coverage.xml
 local_fabric_settings.py
