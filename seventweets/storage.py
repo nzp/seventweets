@@ -1,9 +1,8 @@
 """This module implements storage of tweets.
 
 Classes:
-
-* Tweet -- Implements tweet objects;
-* Storage -- Just a wrapper for all the database access functions.
+    Tweet: Implements tweet objects.
+    Storage: Wrapper for all the database access functions.
 
 """
 
@@ -15,11 +14,10 @@ from seventweets.config import Config
 class Tweet:
     """Implements tweet objects.
     
-    Instance variables:
-
-    * id -- A unique ID of a tweet;
-    * name -- The name of network node to which the tweet belongs (str);
-    * tweet -- Content of tweet (str).
+    Attributes:
+        id (int): A unique ID of a tweet.
+        name (str): The name of network node to which the tweet belongs.
+        tweet (str): Content of tweet.
     
     """
 
@@ -29,8 +27,9 @@ class Tweet:
         The constructor extracts tweet attributes from the list returned by
         pg8000's ``fetchone()``.
 
-        :param tweet: The attributes of a tweet as returned from the database.
-        :type tweet: List -- ``(<id>, <name of node>, <tweet body>)``.
+        Args:
+            tweet (list): The attributes of a tweet as returned by
+                ``fetchone()`` (``[<id>, <name of node>, <tweet body>)]``).
 
         """
         self.id = tweet[0]
@@ -38,20 +37,18 @@ class Tweet:
         self.tweet = tweet[2]
 
     def __str__(self):
-        """Represent a tweet as string by it's body."""
         return self.tweet
 
 
 class Storage:
-    """Collects methods for database access.
+    """This class encapsulates methods for database access.
 
     Class methods:
-
-    * ``get_all_tweets`` -- Return all the node's tweets and retweets;
-    * ``get_tweet`` -- Return a specific tweet by it's ID;
-    * ``save_tweet`` -- Save a tweet to database;
-    * ``delete_tweet`` -- Delete a tweet from database;
-    * ``search`` -- Search for tweets.
+        get_all_tweets: Return all the node's tweets and retweets.
+        get_tweet: Return a specific tweet by it's ID.
+        save_tweet: Save a tweet to database.
+        delete_tweet: Delete a tweet from database.
+        search: Search for tweets.
     
     """
 
@@ -59,12 +56,12 @@ class Storage:
     def get_all_tweets(cls, cursor):
         """Return all tweets and retweets from the database.
         
-        :param cursor: A database cursor.
-        :type cursor: pg8000 cursor object.
+        Args:
+            cursor (:class:`pg8000.Cursor`): Database cursor object.
 
-        :return: All tweets and retweets as JSON array of objects:
-        ``[{"id": <int>, "name": <str>, "tweet": <str>}, ...]``.
-        :rtype: str
+        Returns:
+            str: All tweets and retweets as JSON array of objects
+                (``[{"id": <int>, "name": <str>, "tweet": <str>}, ...]``).
         
         """
         cursor.execute('SELECT id, node_name, content FROM tweet')
@@ -75,14 +72,13 @@ class Storage:
     def get_tweet(cls, cursor, id):
         """Return a single tweet from the database by it's ID.
         
-        :param cursor: Database cursor.
-        :type cursor: pg8000.Cursor
-        :param id: Tweet ID.
-        :type id: int.
+        Args:
+            cursor (:class:`pg8000.Cursor`): Database cursor object.
+            id (int): Tweet ID.
 
-        :returns: Tweet as a JSON object
-        (``{"id": <int>, "name": <str>, "tweet": <str>}``), or None if no tweet.
-        :rtype: str or None
+        Returns:
+            str or None: Tweet as a JSON object (``{"id": <int>, "name": <str>,
+                "tweet": <str>}``), or ``None`` if no tweet with ID.
         
         """
         cursor.execute(
@@ -98,14 +94,13 @@ class Storage:
     def save_tweet(cls, cursor, tweet):
         """Save tweet to the database and return it's full JSON representation.
 
-        :param cursor: Database cursor.
-        :type cursor: pg8000.Cursor
-        :param tweet: Tweet body.
-        :type tweet: str
+        Args:
+            cursor (:class:`pg8000.Cursor`): Database cursor object.
+            tweet (str): Content of the tweet.
 
-        :returns: Tweet as a JSON object
-        (``{"id": <int>, "name": <str>, "tweet": <str>}``).
-        :rtype: str
+        Returns:
+            str: Saved tweet as a JSON object (``{"id": <int>, "name": <str>,
+                "tweet": <str>}``).
 
         """
         cursor.execute(
@@ -120,14 +115,13 @@ class Storage:
     @classmethod
     def delete_tweet(cls, cursor, id):
         """Delete a tweet from the database by ID.
-        
-        :param cursor: Database cursor.
-        :type cursor: pg8000.Cursor
-        :param id: ID of the tweet to be deleted.
-        :type id: int
 
-        :returns: True on success, False if the tweet ID doesn't exist.
-        :rtype: bool
+        Args:
+            cursor (:class:`pg8000.Cursor`): Database cursor object.
+            id (int): ID of the tweet to be deleted.
+        
+        Returns:
+            bool: True on success, False if the tweet ID doesn't exist.
         
         """
         cursor.execute(
@@ -144,14 +138,13 @@ class Storage:
     def search(cls, cursor, query):
         """Execute a query on the database and return matching tweets.
 
-        :param cursor: Database cursor.
-        :type cursor: pg8000.Cursor
-        :param query: SQL query to execute.
-        :type query: str
+        Args:
+            cursor (:class:`pg8000.Cursor`): Database cursor object.
+            query (str): SQL query to execute.
 
-        :return: All tweets as a JSON array of objects:
-        ``[{"id": <int>, "name": <str>, "tweet": <str>}, ...]``.
-        :rtype: str
+        Returns:
+            str: All tweets as a JSON array of objects (``[{"id": <int>, "name":
+                <str>, "tweet": <str>}, ...]``).
 
         """
         cursor.execute(query)
