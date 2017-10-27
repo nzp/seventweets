@@ -300,7 +300,7 @@ def join_network():
     list of known nodes, we register to each of those.
 
     Returns:
-        (str, int, dict): Response body (API done not specify any), HTTP status
+        (str, int, dict): Response body (API does not specify any), HTTP status
             code 200, headers.
 
     """
