@@ -1,6 +1,7 @@
 import json
 from unittest.mock import MagicMock
 from unittest.mock import patch
+from unittest.mock import call
 import sys
 
 import pytest
@@ -169,3 +170,45 @@ def test_delete_node(mocker):
     test_client.delete('/registry/test-name')
 
     seventweets.registry.Registry.delete_node.assert_called_with('test-name')
+
+
+def test_join_network(mocker):
+    mocker.patch.object(seventweets.node.Registry, 'register')
+    mocker.patch.object(seventweets.node.requests, 'post')
+
+    node_list = [
+        {'name': 'node1', 'address': 'node1.example.com'},
+        {'name': 'node2', 'address': 'node2.example.com'},
+    ]
+    seventweets.node.requests.post.return_value = json.dumps(node_list)
+
+    mocker.patch.object(seventweets.config.Config, 'API_TOKEN')
+    seventweets.config.Config.API_TOKEN = 'test-token'
+
+    mocker.patch.object(seventweets.config.Config, 'NAME')
+    seventweets.config.Config.NAME = 'me'
+    mocker.patch.object(seventweets.config.Config, 'ADDRESS')
+    seventweets.config.Config.ADDRESS = 'me.example.com'
+
+    data = '{"name": "test-node", "address": "node.example.com"}'
+
+    response = test_client.post('/join_network',
+                                data=data,
+                                headers={'X-Api-Token': 'test-token'})
+
+    register_calls = [call(json.loads(data)),
+                      call(node_list[0]),
+                      call(node_list[1]),]
+    seventweets.node.Registry.register.assert_has_calls(register_calls)
+
+    body = '{"address": "me.example.com", "name": "me"}'
+    request_post_calls = [
+        call('http://node.example.com/registry', data=body),
+        call('http://{address}/registry'.format(address=node_list[0]['address']),
+             data=body),
+        call('http://{address}/registry'.format(address=node_list[1]['address']),
+             data=body)
+    ]
+    seventweets.node.requests.post.assert_has_calls(request_post_calls)
+
+    assert response.status_code == 200
