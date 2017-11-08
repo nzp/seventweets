@@ -309,7 +309,8 @@ def join_network():
         init_node = json.loads(request.get_data(as_text=True))
         body = json.dumps({'name': Config.NAME, 'address': Config.ADDRESS})
 
-        Register.register(init_node)  # Just in case self is not returned.
+        # In case others not returning self in list of known nodes.
+        Register.register(init_node)
 
         all_nodes_json = requests.post(
             'http://{address}/registry'.format(address=init_node['address']),
