@@ -22,6 +22,7 @@ Functions:
 
 """
 
+from collections import OrderedDict
 from contextlib import contextmanager
 from functools import wraps
 import json
@@ -96,7 +97,7 @@ def get_tweets():
     """Return all tweets by this node.
 
     This endpoint is not protected by authentication.
-    
+
     Returns:
         (str, int, dict): JSON array of tweet objects
             (``"[{"id": <int>, "name": <str>, "tweet": <str>}, ...]"``),
@@ -115,7 +116,7 @@ def get_tweet(id):
     """Return tweet by id.
 
     This endpoint is not protected by authentication.
-    
+
     Args:
         id (int): ID of the tweet to retrieve.
 
@@ -144,7 +145,7 @@ def save_tweet():
 
     Request body format is a JSON object with the tweet as value of string
     ``"tweet"``, e.g.: ``{"tweet": "Hot takes! Get your hot takes!"}``.
-    
+
     Returns:
         (str, int, dict): JSON object of the tweet (``"{"id": <int>,
             "name": <str>, "tweet": <str>}"``), HTTP status code 201, headers.
@@ -165,7 +166,7 @@ def delete_tweet(id):
 
     Used by this node's frontend to delete own tweet or retweet.  This endpoint
     is authenticated.  On success returns HTTP code 204.
-    
+
     Args:
         id (int): ID of the tweet to delete.
 
@@ -302,7 +303,12 @@ def join_network():
 
     """
     init_node = json.loads(request.get_data(as_text=True))
-    body = json.dumps({'name': Config.NAME, 'address': Config.ADDRESS})
+
+    # Preserving the order of keys mainly because of easier unit testing.
+    # Without ordering, sometimes the order would be reversed and the tests
+    # involving this would fail.
+    self_node = OrderedDict([('name', Config.NAME), ('address', Config.ADDRESS)])
+    body = json.dumps(self_node)
 
     # In case others not returning self in list of known nodes.
     Registry.register(init_node)

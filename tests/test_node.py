@@ -201,7 +201,7 @@ def test_join_network(mocker):
                       call(node_list[1]),]
     seventweets.node.Registry.register.assert_has_calls(register_calls)
 
-    body = '{"address": "me.example.com", "name": "me"}'
+    body = '{"name": "me", "address": "me.example.com"}'
     request_post_calls = [
         call('http://node.example.com/registry', data=body),
         call('http://{address}/registry'.format(address=node_list[0]['address']),
